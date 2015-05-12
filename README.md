@@ -1,6 +1,11 @@
 # Sudoku
 <img src="http://omerkel.github.io/Sudoku/html5/src/img/icons/sudoku-128.png" /> A free implementation of the well-known <b>Sudoku</b> number puzzle.
 
+* <em>Start an online</em> <b>Sudoku</b> <em>session on</em> http://omerkel.github.io/Sudoku/html5/src/
+* <em>runs in various browsers on</em>
+    * <em>desktop systems like BSDs, Linux, Win, MacOS and</em>
+    * <em>mobile platforms like Android, FirefoxOS, iOS.</em>
+
 <b>Keywords, Categories</b> <em>Number Puzzle, Logic Puzzle, Recreational Mathematics,
 Latin Squares, Games/Entertainment, Mobile</em>
 
