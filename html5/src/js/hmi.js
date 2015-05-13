@@ -202,9 +202,7 @@ Hmi.prototype.clickHandler = function ( event ) {
   var a = Number(event.target.id.slice(-2,-1));
   var b = Number(event.target.id.slice(-1));
   this.unselect();
-  if( '+' == this.board.board[1][a][b] ) {
-    unselect();
-  } else {
+  if( '-' == this.board.board[1][a][b] ) {
     var v = cell.html();
     if( '&nbsp;' == v ) cell.html( '?' );
     cell.css({
