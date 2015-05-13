@@ -132,6 +132,7 @@ Board.prototype.permutate = function () {
 Hmi.CURRENTEDIT = 'current edit';
 
 function Hmi() {
+  this.renderBoard();
   this.edit = {};
   this.board = null;
   this.init();
@@ -155,6 +156,39 @@ Hmi.prototype.init = function () {
   $(window).resize(this.resize.bind(this));
   $(window).resize();
 };
+
+Hmi.prototype.renderBoard = function () {
+  var html = "<table cellpadding='0' cellspacing='0' id='idboard'><tbody>";
+  for(var cr=0; cr<3; ++cr) {
+    html += '<tr>';
+    for(var cc=0; cc<3; ++cc) {
+      var cls = 0==cr ? [] : [ 'gridnottop' ];
+      if (cc > 0) cls[cls.length] = 'gridnotleft';
+      if (1 == ((cc+cr) % 2)) cls[cls.length] = 'mid';
+      html += '<td' + (0 == cls.length ? '>' : " class='" + cls.join(" ") + "'>");
+      html += "<table cellpadding='0' cellspacing='0'><tbody>";
+      for(var fr=0; fr<3; ++fr) {
+        html += '<tr>';
+        for(var fc=0; fc<3; ++fc) {
+          cls = 2==fr ? [] : [ 'row' ];
+          if (fc > 0) cls[cls.length] = 'cell';
+          html += '<td' + (0 == cls.length ? '>' : " class='" + cls.join(" ") + "'>");
+          cls = [ 'board', 'box' ];
+          
+          html += "<span class='" + cls.join(" ") + 
+            ("' id='cell" + (cr*3+fr)) + (cc*3+fc) + "'>#</span>"
+          html += '</td>';
+        }
+        html += '</tr>';
+      }
+      html += "</tbody></table>";
+      html += '</td>';
+    }
+    html += '</tr>';
+  }
+  html += "</tbody></table>";
+  $(html).appendTo('#panel');
+}
 
 Hmi.prototype.newBoard = function () {
   this.board = (new Board()).shuffleRows().turn().shuffleRows().permutate();
