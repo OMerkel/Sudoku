@@ -1,8 +1,23 @@
 //
+// Copyright (c) 2015 Oliver Merkel
+// All rights reserved.
+//
 // @author Oliver Merkel, <Merkel(dot)Oliver(at)web(dot)de>
 //
 
-var challengeSeed = [
+Array.prototype.shuffle = function () {
+  for(var i=this.length-1; i>0; --i) {
+    var j = Math.floor( Math.random() * (i + 1) );
+    if(j!=i) {
+      var t = this[i];
+      this[i] = this[j];
+      this[j] = t;
+    }
+  }
+  return this;
+};
+
+Board.challengeSeed = [
 [
   [ '625413789',
     '184679325',
@@ -65,27 +80,15 @@ var challengeSeed = [
 ],
 ];
 
-Array.prototype.shuffle = function () {
-  for(var i=this.length-1; i>0; --i) {
-    var j = Math.floor( Math.random() * (i + 1) );
-    if(j!=i) {
-      var t = this[i];
-      this[i] = this[j];
-      this[j] = t;
-    }
-  }
-  return this;
-};
-
 function Board() { this.setup(); }
 
 Board.prototype.setup = function() {
-  var i = Math.floor( Math.random() * challengeSeed.length );
+  var i = Math.floor( Math.random() * Board.challengeSeed.length );
   console.log('challengeSeed: ' + i);
   this.board = [ [], [] ];
   for (var j=0; j<9; ++j) {
-    this.board[0][j] = challengeSeed[i][0][j];
-    this.board[1][j] = challengeSeed[i][1][j];
+    this.board[0][j] = Board.challengeSeed[i][0][j];
+    this.board[1][j] = Board.challengeSeed[i][1][j];
   }
 };
 
@@ -126,70 +129,45 @@ Board.prototype.permutate = function () {
   return this;  
 };
 
-var CURRENTEDIT = 'current edit';
-var edit = {};
-var board = null;
+Hmi.CURRENTEDIT = 'current edit';
 
-function unselect() {
-  var currentEdit = edit[CURRENTEDIT];
-  if(currentEdit) {
-    var v = currentEdit.html();
-    if('?' == v) currentEdit.html( '&nbsp;' );
-    currentEdit.css({
-      'font-size': '20px',
-      'transition-duration': '0.5s',
-      '-webkit-animation': '',
-      'animation': '',
-    });
-    edit[CURRENTEDIT] = null;
-  }
+function Hmi() {
+  this.edit = {};
+  this.board = null;
+  this.init();
 }
 
-function clickHandler( event ) {
-  var cell = $('#' + event.target.id);
-  var a = Number(event.target.id.slice(-2,-1));
-  var b = Number(event.target.id.slice(-1));
-  unselect();
-  if('+' == board.board[1][a][b]) {
-    unselect();
-  } else {
-    var v = cell.html();
-    if('&nbsp;' == v) cell.html( '?' );
-    cell.css({
-      // 'font-size': '28px',
-      'transition-duration': '0s',
-      '-webkit-animation': 'selectedcell 0.5s infinite alternate',
-      '-webkit-animation-play-state': 'running',
-      'animation': 'selectedcell 0.5s infinite alternate',
-      'animation-play-state': 'running',
-    });
-    edit[CURRENTEDIT] = cell;
+Hmi.prototype.init = function () {
+  $('#new').on('click', this.newBoard.bind(this));
+  $('#restart').on('click', this.start.bind(this));
+  this.newBoard();
+  for(var a=1; a<=9; a++) {
+    $('#edit'+a).on('click', this.clickEditHandler.bind(this));
   }
-}
-
-function clickEditHandler( event ) {
-  if(edit[CURRENTEDIT]) {
-    if('editq'==event.target.id) {
-      edit[CURRENTEDIT].html('?');
-    } else {
-      var v = event.target.id.slice(-1);
-      edit[CURRENTEDIT].html(v);
+  $('#editq').on('click', this.clickEditHandler.bind(this));
+  // $('#editp').on('click', this.clickEditHandler.bind(this));
+  // $('#editn').on('click', this.clickEditHandler.bind(this));
+  for(var a=0; a<9; a++) {
+    for(var b=0; b<9; b++) {
+      $(('#cell'+a)+b).on('click', this.clickHandler.bind(this));
     }
   }
+  $(window).resize(this.resize.bind(this));
+  $(window).resize();
+};
+
+Hmi.prototype.newBoard = function () {
+  this.board = (new Board()).shuffleRows().turn().shuffleRows().permutate();
+  this.start();
 }
 
-function newBoard() {
-  board = (new Board()).shuffleRows().turn().shuffleRows().permutate();
-  init();
-}
-
-function init() {
-  unselect();
+Hmi.prototype.start = function () {
+  this.unselect();
   for(var a=0; a<9; a++) {
     for(var b=0; b<9; b++) {
       var cell = $(('#cell'+a)+b);
-      if('+' == board.board[1][a][b]) {
-        cell.html( board.board[0][a][b] ).css({
+      if( '+' == this.board.board[1][a][b] ) {
+        cell.html( this.board.board[0][a][b] ).css({
           'font-size': '20px',
           'color': 'LightSlateGray',
           'transition-duration': '0.5s',
@@ -204,21 +182,68 @@ function init() {
   }
 }
 
-function initHmi() {
-  newBoard();
-  $('#new').click(newBoard);
-  $('#restart').click(init);
-  for(var a=1; a<=9; a++) {
-    $('#edit'+a).click(clickEditHandler);
+Hmi.prototype.unselect = function () {
+  var currentEdit = this.edit[Hmi.CURRENTEDIT];
+  if( currentEdit ) {
+    var v = currentEdit.html();
+    if( '?' == v ) currentEdit.html( '&nbsp;' );
+    currentEdit.css({
+      'font-size': '20px',
+      'transition-duration': '0.5s',
+      '-webkit-animation': '',
+      'animation': '',
+    });
+    this.edit[Hmi.CURRENTEDIT] = null;
   }
-  $('#editq').click(clickEditHandler);
-  // $('#editp').click(clickEditHandler);
-  // $('#editn').click(clickEditHandler);
-  for(var a=0; a<9; a++) {
-    for(var b=0; b<9; b++) {
-      $(('#cell'+a)+b).click(clickHandler);
+}
+
+Hmi.prototype.clickHandler = function ( event ) {
+  var cell = $('#' + event.target.id);
+  var a = Number(event.target.id.slice(-2,-1));
+  var b = Number(event.target.id.slice(-1));
+  this.unselect();
+  if( '+' == this.board.board[1][a][b] ) {
+    unselect();
+  } else {
+    var v = cell.html();
+    if( '&nbsp;' == v ) cell.html( '?' );
+    cell.css({
+      // 'font-size': '28px',
+      'transition-duration': '0s',
+      '-webkit-animation': 'selectedcell 0.5s infinite alternate',
+      '-webkit-animation-play-state': 'running',
+      'animation': 'selectedcell 0.5s infinite alternate',
+      'animation-play-state': 'running',
+    });
+    this.edit[Hmi.CURRENTEDIT] = cell;
+  }
+}
+
+Hmi.prototype.clickEditHandler = function ( event ) {
+  if( this.edit[Hmi.CURRENTEDIT] ) {
+    if( 'editq' == event.target.id ) {
+      this.edit[Hmi.CURRENTEDIT].html('?');
+    } else {
+      var v = event.target.id.slice(-1);
+      this.edit[Hmi.CURRENTEDIT].html(v);
     }
   }
 }
 
-$().ready( initHmi );
+Hmi.prototype.resize = function () {
+  var innerWidth = window.innerWidth,
+    innerHeight = window.innerHeight;
+  var boardWidth = innerHeight>innerWidth ? 0.85 * innerWidth : 0.85 * innerHeight,
+    boardHeight = boardWidth;
+  var minSize = 40;
+  this.buttonSize = 0.05 * innerWidth < minSize ? minSize : 0.05 * innerWidth;
+  var size = {
+    'width': this.buttonSize+'px', 'height': this.buttonSize+'px',
+    'background-size': this.buttonSize+'px ' + this.buttonSize+'px',
+  };
+  $('#customMenu').css(size);
+  $('#customBackRules').css(size);
+  $('#customBackAbout').css(size);
+};
+
+$().ready( function () { new Hmi(); } );
