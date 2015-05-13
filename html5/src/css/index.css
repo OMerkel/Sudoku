@@ -123,6 +123,46 @@ figure.author figcaption {
   height: 40px; min-height: 40px;
 }
 
+table#idboard {
+  border: solid #777 4px; border-radius: 12px; background: #333; 
+}
+
+table#idedit {
+  border: solid #777 4px; border-radius: 20px; margin-top: 20px;
+}
+
+.gridnotleft {
+  border-left: solid #111 2px;
+}
+
+.gridnottop {
+  border-top: solid #111 2px;
+}
+
+.mid {
+  background: #444;
+}
+
+.celltopleft {
+  border-top-left-radius: 8px;
+}
+
+.celltopright {
+  border-top-right-radius: 8px;
+}
+
+.cellbottomleft {
+  border-bottom-left-radius: 8px;
+}
+
+.cellbottomright {
+  border-bottom-right-radius: 8px;
+}
+
+table.notes {
+  width: 100%; font-size: 9px;
+}
+
 @-webkit-keyframes selectedcell {
 from {-webkit-transform: font-size: 20px;}
 to {-webkit-transform: font-size: 28px;}
