@@ -3,17 +3,16 @@
   "name": "Sudoku",
   "description": "Sudoku",
   "launch_path": "/Sudoku/html5/src/index.html",
-  "appcache_path": "/Sudoku/html5/src/offline.appcache",
   "icons": {
-    "16": "/Sudoku/html5/src/img/icons/sudoku-16.png",
-    "32": "/Sudoku/html5/src/img/icons/sudoku-32.png",
-    "48": "/Sudoku/html5/src/img/icons/sudoku-48.png",
-    "60": "/Sudoku/html5/src/img/icons/sudoku-60.png",
-    "64": "/Sudoku/html5/src/img/icons/sudoku-64.png",
-    "90": "/Sudoku/html5/src/img/icons/sudoku-90.png",
-    "120": "/Sudoku/html5/src/img/icons/sudoku-120.png",
-    "128": "/Sudoku/html5/src/img/icons/sudoku-128.png",
-    "256": "/Sudoku/html5/src/img/icons/sudoku-256.png"
+    "16": "/Sudoku/html5/src/img/icons/sudoku16.png",
+    "32": "/Sudoku/html5/src/img/icons/sudoku32.png",
+    "48": "/Sudoku/html5/src/img/icons/sudoku48.png",
+    "60": "/Sudoku/html5/src/img/icons/sudoku60.png",
+    "64": "/Sudoku/html5/src/img/icons/sudoku64.png",
+    "90": "/Sudoku/html5/src/img/icons/sudoku90.png",
+    "120": "/Sudoku/html5/src/img/icons/sudoku120.png",
+    "128": "/Sudoku/html5/src/img/icons/sudoku128.png",
+    "256": "/Sudoku/html5/src/img/icons/sudoku256.png"
   },
   "developer": {
     "name": "Oliver Merkel",

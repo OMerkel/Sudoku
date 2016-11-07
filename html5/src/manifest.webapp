@@ -4,15 +4,15 @@
   "description": "Sudoku",
   "launch_path": "/index.html",
   "icons": {
-    "16": "/img/icons/sudoku-16.png",
-    "32": "/img/icons/sudoku-32.png",
-    "48": "/img/icons/sudoku-48.png",
-    "60": "/img/icons/sudoku-60.png",
-    "64": "/img/icons/sudoku-64.png",
-    "90": "/img/icons/sudoku-90.png",
-    "120": "/img/icons/sudoku-120.png",
-    "128": "/img/icons/sudoku-128.png",
-    "256": "/img/icons/sudoku-256.png"
+    "16": "/img/icons/sudoku16.png",
+    "32": "/img/icons/sudoku32.png",
+    "48": "/img/icons/sudoku48.png",
+    "60": "/img/icons/sudoku60.png",
+    "64": "/img/icons/sudoku64.png",
+    "90": "/img/icons/sudoku90.png",
+    "120": "/img/icons/sudoku120.png",
+    "128": "/img/icons/sudoku128.png",
+    "256": "/img/icons/sudoku256.png"
   },
   "developer": {
     "name": "Oliver Merkel",
