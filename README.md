@@ -19,11 +19,12 @@ Latin Squares, Games/Entertainment, Mobile</em>
 <li>each of the nine three-times-three subgrids does not contain any
   duplicate of digits.</li>
 </ul>
-<p>On clicking an empty cell it gets marked by a question mark symbol.
-  The question mark indicates that no specific number is selected for
-  this cell so far. Now you can select a digit ranged from 1 to 9 to
-  fit in the cell. To clear the cell a question mark can be
-  reselected, too.</p>
+<p>On clicking a cell on the game board without predefined fixed digit
+  a cursor is set. Now you can select a digit ranged from 1 to 9 to
+  fit in the cell highlighted by the cursor position. Clearing the cell
+  is possible via the backspace button.</p>
+<p>Smaller markers can be used to indicate remaining candidates for
+  the cell positions.</p>
 <h3>Some hints and facts</h3>
 <p>The Sudoku generator in use here is explicitly not only supporting
   symmetric cell patterns that often can be found in other Sudokus.</p>
@@ -42,7 +43,7 @@ Latin Squares, Games/Entertainment, Mobile</em>
     <td><p>Oliver Merkel,<br /><a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />This image is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License</a>.    
     </p>
     </td>
-    <td width="50%"><img width="100%" ondragstart="return false;" alt="Oliver Merkel, Creative Commons License, This image is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License." src="html5/src/img/oliver-faerber.jpg" /></td>
+    <td width="50%"><img width="100%" ondragstart="return false;" alt="Oliver Merkel, Creative Commons License, This image is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License." src="html5/src/img/oliver-menzenschwand.jpg" /></td>
   </tr>
 </table>
 

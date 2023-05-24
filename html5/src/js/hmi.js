@@ -1,9 +1,23 @@
-//
-// Copyright (c) 2017 Oliver Merkel
-// All rights reserved.
-//
-// @author Oliver Merkel, <Merkel(dot)Oliver(at)web(dot)de>
-//
+/**
+ * @file hmi.js
+ * @author Oliver Merkel <Merkel(dot)Oliver(at)web(dot)de>
+ * @date 2023 May 22
+ *
+ * @section LICENSE
+ *
+ * Copyright 2016, 2023 Oliver Merkel <Merkel(dot)Oliver(at)web(dot)de>
+ * All rights reserved.
+ *
+ * Released under the MIT license.
+ *
+ * @section DESCRIPTION
+ *
+ * @brief Class Hmi.
+ *
+ * Class representing the view or Hmi of Sudoku game.
+ * Sudoku is a popular number-placement puzzle.
+ *
+ */
 
 Array.prototype.shuffle = function () {
   for(var i=this.length-1; i>0; --i) {
@@ -98,7 +112,7 @@ Board.challengeSeed = [
     '-------++',
     '--+-+++--' ]
 ],
-[
+[ // (/)
   [ '341972658',
     '627485193',
     '598163247',
@@ -169,66 +183,179 @@ Board.prototype.permutate = function () {
   return this;  
 };
 
-Hmi.CURRENTEDIT = 'current edit';
-
 function Hmi() {
+  this.cursor = { x: -1, y: -1 , rows: [], columns: [] };
   this.renderBoard();
-  this.edit = {};
   this.board = null;
+  this.editMarkersActive = false;
   this.init();
 }
 
 Hmi.prototype.init = function () {
-  $('#new').on('click', this.newBoard.bind(this));
-  $('#restart').on('click', this.start.bind(this));
   this.newBoard();
-  for(var a=1; a<=9; a++) {
-    $('#edit'+a).on('click', this.clickEditHandler.bind(this));
-  }
-  $('#editq').on('click', this.clickEditHandler.bind(this));
-  // $('#editp').on('click', this.clickEditHandler.bind(this));
-  // $('#editn').on('click', this.clickEditHandler.bind(this));
-  for(var a=0; a<9; a++) {
-    for(var b=0; b<9; b++) {
-      $(('#cell'+a)+b).on('click', this.clickHandler.bind(this));
-    }
-  }
   $(window).resize(this.resize.bind(this));
   $(window).resize();
 };
 
 Hmi.prototype.renderBoard = function () {
-  var html = "<table cellpadding='0' cellspacing='0' id='idboard'><tbody>";
-  for(var cr=0; cr<3; ++cr) {
-    html += '<tr>';
-    for(var cc=0; cc<3; ++cc) {
-      var cls = 0==cr ? [] : [ 'gridnottop' ];
-      if (cc > 0) cls[cls.length] = 'gridnotleft';
-      if (1 == ((cc+cr) % 2)) cls[cls.length] = 'mid';
-      html += '<td' + (0 == cls.length ? '>' : " class='" + cls.join(" ") + "'>");
-      html += "<table cellpadding='0' cellspacing='0'><tbody>";
-      for(var fr=0; fr<3; ++fr) {
-        html += '<tr>';
-        for(var fc=0; fc<3; ++fc) {
-          cls = 2==fr ? [] : [ 'row' ];
-          if (fc > 0) cls[cls.length] = 'cell';
-          html += '<td' + (0 == cls.length ? '>' : " class='" + cls.join(" ") + "'>");
-          cls = [ 'board', 'box' ];
-          
-          html += "<span class='" + cls.join(" ") + 
-            ("' id='cell" + (cr*3+fr)) + (cc*3+fc) + "'>#</span>"
-          html += '</td>';
-        }
-        html += '</tr>';
-      }
-      html += "</tbody></table>";
-      html += '</td>';
-    }
-    html += '</tr>';
+  var stroke_width = 4;
+  this.panel = { x: 390, y: 500 };
+  this.paper = Raphael( 'panel', this.panel.x, this.panel.y);
+  this.paper.setViewBox(-stroke_width, -stroke_width, 360+stroke_width, (360+2*stroke_width) * this.panel.y / this.panel.x, false );
+  this.paper.rect(-stroke_width, -stroke_width, this.panel.x+30, this.panel.y+30 ).attr({
+    stroke: 'none', 'stroke-width': 0, 'stroke-linecap': 'round',
+    fill: 'none'
+  });
+  
+  /* board */
+  this.paper.rect( 0, 0, 360, 360, 12 ).attr({
+    stroke: '#777', 'stroke-width': stroke_width, 'stroke-linecap': 'round',
+    fill: '#333'
+  });
+  this.paper.rect( 120, 0, 120, 120 ).attr({
+    stroke: '#aaa', 'stroke-width': 0, 'stroke-linecap': 'round',
+    fill: '#444'
+  });
+  this.paper.rect( 0, 120, 120, 120 ).attr({
+    stroke: '#aaa', 'stroke-width': 0, 'stroke-linecap': 'round',
+    fill: '#444'
+  });
+  this.paper.rect( 240, 120, 120, 120 ).attr({
+    stroke: '#aaa', 'stroke-width': 0, 'stroke-linecap': 'round',
+    fill: '#444'
+  });
+  this.paper.rect( 120, 240, 120, 120 ).attr({
+    stroke: '#aaa', 'stroke-width': 0, 'stroke-linecap': 'round',
+    fill: '#444'
+  });
+
+  
+  for ( var i=0; i<9; i++ ) {
+    this.cursor.rows[i] = this.paper.rect( 0, i * 40, 360, 40, 12 ).attr({
+      stroke: 'none', 'stroke-width': 0, 'stroke-linecap': 'round',
+      fill: '#448', opacity: 0 });
+    this.cursor.columns[i] = this.paper.rect( i * 40, 0, 40, 360, 12 ).attr({
+      stroke: 'none', 'stroke-width': 0, 'stroke-linecap': 'round',
+      fill: '#448', opacity: 0 });
   }
-  html += "</tbody></table>";
-  $(html).appendTo('#panel');
+  
+  this.paper.path( 'M0,120l360,0m-360,120l360,0m-240,-240l0,360m120,-360l0,360' )
+        .attr({ 'fill': 'none', stroke: 'black', 'stroke-width': 1, 'stroke-linecap': 'round' });
+  this.paper.path( 'M0,40l360,0m-360,40l360,0m-360,80l360,0m-360,40l360,0m-360,80l360,0m-360,40l360,0' )
+        .attr({ 'fill': 'none', stroke: 'black', 'stroke-width': 1, 'stroke-linecap': 'round', 'stroke-dasharray': '- ' });
+  this.paper.path( 'M40,0l0,360m40,-360l0,360m80,-360l0,360m40,-360l0,360m80,-360l0,360m40,-360l0,360' )
+        .attr({ 'fill': 'none', stroke: 'black', 'stroke-width': 1, 'stroke-linecap': 'round', 'stroke-dasharray': '- ' });
+  this.paper.rect( 0, 0, 360, 360, 12 ).attr({
+    stroke: '#777', 'stroke-width': stroke_width, 'stroke-linecap': 'round',
+    fill: 'none'
+  });
+  
+  
+  this.paper.rect( 0, 360+6*stroke_width , 360, 360*2 /9 , 20 ).attr({
+    stroke: '#777', 'stroke-width': stroke_width, 'stroke-linecap': 'round',
+    fill: 'black'
+  });
+  this.paper.path( 'M0,424l360,0m-320,-40l0,80m40,-80l0,80m40,-80l0,80m40,-80l0,80m40,-80l0,80m40,-80l0,80m40,-80l0,80m40,-80l0,80' )
+        .attr({ 'fill': 'none', stroke: '#333', 'stroke-width': 1, 'stroke-linecap': 'round', 'stroke-dasharray': '- ' });
+  this.paper.rect( 0, 360+6*stroke_width , 360, 360*2 /9 , 20 ).attr({
+    stroke: '#777', 'stroke-width': stroke_width, 'stroke-linecap': 'round',
+    fill: 'none'
+  });
+
+  this.cells = [];
+  for( var r=0; r<9; r++) {
+    var col = [];
+    for( var c=0; c<9; c++) {
+      col[c] = {
+        value: this.paper.text( 20+r*40, 20+c*40, ''+c).attr({ "font-size": 20, "font-family": "sans-serif" }).attr({fill: "#fff"}),
+        markers: this.createEmptyMarkers( r*40, c*40, "#ccc", 0 ),
+        button: this.paper.rect( r*40 + 4, c*40 + 4, 32, 32 ).attr({ 'fill': 'white', stroke: 'none',
+        'stroke-width': 0, 'fill-opacity': 0.01 })
+      };
+      col[c].button.click( this.clickSelectCellHandler.bind(this) );
+    }
+    this.cells[r] = col;
+  }
+
+  this.keyboardAction = [
+    {
+      label: this.paper.text( 20, 450, '*').attr({ "font-size": 40, "font-family": "sans-serif" }).attr({fill: "#fff"}),
+      button: this.paper.rect( 0, 429, 35, 35, 12).attr({ 'fill': 'white', stroke: 'none',
+        'stroke-width': 0, 'fill-opacity': 0.01 })
+    }, // New
+    {
+      label: this.paper.text(60, 440, '⟲').attr({ "font-size": 24, "font-family": "sans-serif" }).attr({fill: "#fff"}),
+      button: this.paper.rect( 45, 429, 30, 35, 12).attr({ 'fill': 'white', stroke: 'none',
+        'stroke-width': 0, 'fill-opacity': 0.01 })
+    }, // Restart
+    {
+      label: [  this.createMarkers( 160, 424, "#777", 1.0),
+          this.paper.path('M160,424m8,30l5,-6l16,-12  l1.2,0.8l1,1.3l0.3,1.6  l-16,12l-7.4,2.7 m5,-6l1.2,0.8l1,1.2l0.4,1.3 m10,-13l1.2,0.8l1,1.2l0.4,1.3 m-4.8,-1.8l1.2,0.8l1,1.2l0.4,1.3 ').attr({ stroke: '#fff', 'stroke-width': 0.8, 'stroke-linecap': 'round',
+            fill: 'none' }),
+          this.paper.path('M160,424m14.2,24.8l10.5,-8 m-9.5,9.2l10.5,-8').attr({ stroke: '#fff', 'stroke-width': 0.6, 'stroke-linecap': 'round',
+            fill: 'none' })
+        ],
+      button: this.paper.rect( 160, 429, 40, 35, 12).attr({ 'fill': 'white', stroke: 'none',
+        'stroke-width': 0, 'fill-opacity': 0.01 })
+    }, // Fill in markers
+    {
+      background: this.paper.rect( 240, 424, 40, 40).attr({ 'fill': '#777', stroke: 'none',
+        'stroke-width': 0, 'fill-opacity': 0.01 }),
+      label: this.createMarkers( 240, 424, "#fff", 1.0),
+      button: this.paper.rect( 240, 429, 40, 35, 12).attr({ 'fill': 'white', stroke: 'none',
+        'stroke-width': 0, 'fill-opacity': 0.01 })
+    }, // Edit markers
+    {
+      label: this.paper.text(340, 444, '⌫').attr({ "font-size": 20, "font-family": "sans-serif" }).attr({fill: "#fff"}),
+      button: this.paper.rect( 320, 429, 40, 35, 12).attr({ 'fill': 'white', stroke: 'none',
+        'stroke-width': 0, 'fill-opacity': 0.01 })
+    }, // Backspace / clear cell
+  ]
+  for( var e=0; e<this.keyboardAction.length; e++ ) {
+    this.keyboardAction[e].button.click( this.clickKeyboardActionHandler.bind(this) );
+  }
+
+  this.keyboardValue = [];
+  for( var e=0; e<9; e++ ) {
+    this.keyboardValue[e] = {
+      label: this.paper.text(20 + e*40, 404, '' + (e+1)).attr({ "font-size": 20, "font-family": "sans-serif" }).attr({fill: "#fff"}),
+      button: this.paper.rect(e*40, 384, 40, 40, 12).attr({ 'fill': 'white', stroke: 'none',
+        'stroke-width': 0 , 'fill-opacity': 0.01 })
+    };
+    this.keyboardValue[e].button.click( this.clickKeyboardValueHandler.bind(this) );
+  }
 }
+
+Hmi.prototype.createEmptyMarkers = function ( x, y, c, o ) {
+  var markers = [
+    this.paper.text(x+ 8, y+ 8, '').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+20, y+ 8, '').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+32, y+ 8, '').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+ 8, y+20, '').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+20, y+20, '').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+32, y+20, '').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+ 8, y+32, '').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+20, y+32, '').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+32, y+32, '').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+  ];
+  return markers;
+}
+
+Hmi.prototype.createMarkers = function ( x, y, c, o ) {
+  var markers = [
+    this.paper.text(x+ 8, y+ 8, '1').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+20, y+ 8, '2').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+32, y+ 8, '3').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+ 8, y+20, '4').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+20, y+20, '5').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+32, y+20, '6').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+ 8, y+32, '7').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+20, y+32, '8').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+    this.paper.text(x+32, y+32, '9').attr({ "font-size": 10, "font-family": "sans-serif" }).attr({ fill: c, opacity: o }),
+  ];
+  return markers;
+}
+
 
 Hmi.prototype.newBoard = function () {
   this.board = (new Board()).shuffleRows().turn().shuffleRows().permutate();
@@ -236,86 +363,173 @@ Hmi.prototype.newBoard = function () {
 }
 
 Hmi.prototype.start = function () {
-  this.unselect();
+  this.clearMarkers();
   for(var a=0; a<9; a++) {
     for(var b=0; b<9; b++) {
-      var cell = $(('#cell'+a)+b);
+      var cell = this.cells[a][b];
       if( '+' == this.board.board[1][a][b] ) {
-        cell.html( this.board.board[0][a][b] ).css({
-          'font-size': '20px',
-          'color': 'LightSlateGray',
-          'transition-duration': '0.5s',
-        });
+        cell.value.attr({ text: this.board.board[0][a][b], fill: 'LightSlateGray' });
       } else {
-        cell.html( '&nbsp;' ).css({
-          'font-size': '0px',
-          'color': 'Gainsboro',
-        });
+        cell.value.attr({ text: '', fill: 'Gainsboro' });
+      }
+    }
+  }
+  if (this.cursor.x != -1) {
+    this.cursor.columns[this.cursor.x].attr({ opacity: 0 });
+    this.cursor.rows[this.cursor.y].attr({ opacity: 0 });
+  }
+  this.cursor.x = -1;
+  this.cursor.y = -1;
+}
+
+Hmi.prototype.clickSelectCellHandler = function ( event ) {
+  for( var y=0; y<9; y++) {
+    for( var x=0; x<9; x++) {
+      if (this.cells[x][y].button.id == event.currentTarget.raphaelid) {
+        // console.log( x + '/' + y );
+        if( '-' == this.board.board[1][x][y] ) {
+          if (this.cursor.x != -1) {
+            this.cursor.columns[this.cursor.x].attr({ opacity: 0 });
+            this.cursor.rows[this.cursor.y].attr({ opacity: 0 });
+          }
+          this.cursor.x = x;
+          this.cursor.y = y;
+          this.cursor.columns[x].attr({ opacity: 0.5 });
+          this.cursor.rows[y].attr({ opacity: 0.5 });
+        }
       }
     }
   }
 }
 
-Hmi.prototype.unselect = function () {
-  var currentEdit = this.edit[Hmi.CURRENTEDIT];
-  if( currentEdit ) {
-    var v = currentEdit.html();
-    if( '?' == v ) currentEdit.html( '&nbsp;' );
-    currentEdit.css({
-      'font-size': '20px',
-      'transition-duration': '0.5s',
-      '-webkit-animation': '',
-      'animation': '',
-    });
-    this.edit[Hmi.CURRENTEDIT] = null;
-  }
-}
-
-Hmi.prototype.clickHandler = function ( event ) {
-  var cell = $('#' + event.target.id);
-  var a = Number(event.target.id.slice(-2,-1));
-  var b = Number(event.target.id.slice(-1));
-  this.unselect();
-  if( '-' == this.board.board[1][a][b] ) {
-    var v = cell.html();
-    if( '&nbsp;' == v ) cell.html( '?' );
-    cell.css({
-      // 'font-size': '28px',
-      'transition-duration': '0s',
-      '-webkit-animation': 'selectedcell 0.5s infinite alternate',
-      '-webkit-animation-play-state': 'running',
-      'animation': 'selectedcell 0.5s infinite alternate',
-      'animation-play-state': 'running',
-    });
-    this.edit[Hmi.CURRENTEDIT] = cell;
-  }
-}
-
-Hmi.prototype.clickEditHandler = function ( event ) {
-  if( this.edit[Hmi.CURRENTEDIT] ) {
-    if( 'editq' == event.target.id ) {
-      this.edit[Hmi.CURRENTEDIT].html('?');
-    } else {
-      var v = event.target.id.slice(-1);
-      this.edit[Hmi.CURRENTEDIT].html(v);
+Hmi.prototype.clickKeyboardValueHandler = function ( event ) {
+  for(var i=0; i<this.keyboardValue.length; ++i) {
+    if (this.keyboardValue[i].button.id == event.currentTarget.raphaelid) {
+      if ( -1 != this.cursor.x ) {
+        console.log( i+1 );
+        if ( this.editMarkersActive ) {
+          if ( '' == this.cells[this.cursor.x][this.cursor.y].value.attr( 'text' )) {
+            this.showMarkers( this.cursor.x, this.cursor.y );
+            this.toggleMarker( this.cursor.x, this.cursor.y, i+1 );
+          }
+        } else {
+          this.cells[this.cursor.x][this.cursor.y].value.attr({ text: ''+(i+1), opacity: 1.0 });
+          if ( this.hasAnyMarkersSet( this.cursor.x, this.cursor.y ) ) {
+            this.hideMarkers( this.cursor.x, this.cursor.y );
+          }
+        }
+      }
     }
   }
 }
 
+Hmi.prototype.clickKeyboardActionHandler = function ( event ) {
+  var action = -1;
+  for(var i=0; i<this.keyboardAction.length; ++i) {
+    if (this.keyboardAction[i].button.id == event.currentTarget.raphaelid) {
+      action = i;
+      // console.log( this.keyboardValue[i].label.attr( 'text' ) );
+    }
+  }
+  switch (action) {
+    case 0: console.log('New');
+      this.newBoard();
+      break;
+    case 1: console.log('Restart');
+      this.start();
+      break;
+    case 2: console.log('Fill in markers');
+      this.fillInMarkers();
+      break;
+    case 3: console.log('Toggle edit markers');
+      this.toggleEditMarkers();
+      break;
+    case 4: console.log('Clear cell');
+      this.clearCell();
+      break;
+    default: console.log('No action');
+  }
+}
+
+Hmi.prototype.clearCell = function ( x, y ) {
+  if ( -1 != this.cursor.x ) {
+    this.cells[this.cursor.x][this.cursor.y].value.attr({ text: '', opacity: 1.0 });
+    if (this.hasAnyMarkersSet( this.cursor.x, this.cursor.y )) {
+      this.showMarkers( this.cursor.x, this.cursor.y );
+    }
+  }
+}
+
+Hmi.prototype.hasAnyMarkersSet = function ( x, y ) {
+  var result = false;
+  var markers = this.cells[x][y].markers;
+  for ( var i=0; i<9; i++ ) {
+    result = result || (markers[i].attr( 'text' ) != '');
+  }
+  return result;
+}
+
+Hmi.prototype.hideMarkers = function ( x, y ) {
+  var m = this.cells[x][y].markers;
+  for (i=0; i<m.length; i++) {
+    m[i].attr({ opacity: 0 });
+  }
+}
+
+Hmi.prototype.showMarkers = function ( x, y ) {
+  var m = this.cells[x][y].markers;
+  for (i=0; i<m.length; i++) {
+    m[i].attr({ opacity: 1.0 });
+  }
+}
+
+Hmi.prototype.toggleMarker = function ( x, y, v ) {
+  var m = this.cells[x][y].markers;
+  m[v-1].attr({ text: ( '' == m[v-1].attr( 'text' ) ) ? ''+v : '' });
+}
+
+Hmi.prototype.fillInMarkers = function () {
+  for( var y=0; y<9; y++) {
+    for( var x=0; x<9; x++) {
+      if ( (!this.hasAnyMarkersSet( x, y )) &&
+        ('' == this.cells[x][y].value.attr( 'text')) ) {
+        this.showMarkers( x, y );
+        for( var i=0; i<9; i++ ) {
+          this.cells[x][y].markers[i].attr({ text: ''+(i+1) });
+        }
+      }
+    }
+  }
+}
+
+Hmi.prototype.clearMarkers = function () {
+  for( var y=0; y<9; y++) {
+    for( var x=0; x<9; x++) {
+      for( var i=0; i<9; i++ ) {
+        this.cells[x][y].markers[i].attr({ text: '' });
+      }
+      this.hideMarkers( x, y );
+    }
+  }
+}
+
+Hmi.prototype.toggleEditMarkers = function () {
+  this.editMarkersActive = !this.editMarkersActive;
+  // console.log('editMarkersActive : ' + this.editMarkersActive);
+  this.keyboardAction[3].background.attr({ 'fill-opacity': this.editMarkersActive ? 1.0 : 0 });
+}
+
 Hmi.prototype.resize = function () {
-  var innerWidth = window.innerWidth,
-    innerHeight = window.innerHeight;
+  var offsetHeight = 120,
+    offsetWidth = 70,
+    innerWidth = window.innerWidth - offsetWidth,
+    innerHeight = window.innerHeight - offsetHeight;
   var boardWidth = innerHeight>innerWidth ? 0.85 * innerWidth : 0.85 * innerHeight,
     boardHeight = boardWidth;
-  var minSize = 40;
-  this.buttonSize = 0.05 * innerWidth < minSize ? minSize : 0.05 * innerWidth;
-  var size = {
-    'width': this.buttonSize+'px', 'height': this.buttonSize+'px',
-    'background-size': this.buttonSize+'px ' + this.buttonSize+'px',
-  };
-  $('#customMenu').css(size);
-  $('#customBackRules').css(size);
-  $('#customBackAbout').css(size);
+  this.size = innerWidth/innerHeight < this.panel.x/this.panel.y ?
+    { x: innerWidth, y: innerWidth * this.panel.y/this.panel.x } :
+    { x: innerHeight * this.panel.x/this.panel.y, y: innerHeight } ;
+  this.paper.setSize( this.size.x, this.size.y );
 };
 
 $().ready( function () { new Hmi(); } );
