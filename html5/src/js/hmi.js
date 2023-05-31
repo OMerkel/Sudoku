@@ -139,6 +139,10 @@ function Board() { this.setup(); }
 Board.prototype.setup = function() {
   var i = Math.floor( Math.random() * Board.challengeSeed.length );
   console.log('challengeSeed: ' + i);
+  $('#stat').html('<br/><br/>challengeSeed: ' + i).css({
+          'font-size': '8px',
+          'color': 'Gainsboro',
+        });
   this.board = [ [], [] ];
   for (var j=0; j<9; ++j) {
     this.board[0][j] = Board.challengeSeed[i][0][j];
@@ -284,7 +288,8 @@ Hmi.prototype.renderBoard = function () {
         'stroke-width': 0, 'fill-opacity': 0.01 })
     }, // New
     {
-      label: this.paper.text(60, 440, '⟲').attr({ "font-size": 24, "font-family": "sans-serif" }).attr({fill: "#fff"}),
+      label: this.paper.path('M52,446 A 8 8 0 1 0  52 441 m-1,-4 l1,4 l4,-1.5').attr({ stroke: '#fff', 'stroke-width': 1.5, 'stroke-linecap': 'round',
+            fill: 'none' }),
       button: this.paper.rect( 45, 429, 30, 35, 12).attr({ 'fill': 'white', stroke: 'none',
         'stroke-width': 0, 'fill-opacity': 0.01 })
     }, // Restart
@@ -306,7 +311,8 @@ Hmi.prototype.renderBoard = function () {
         'stroke-width': 0, 'fill-opacity': 0.01 })
     }, // Edit markers
     {
-      label: this.paper.text(340, 444, '⌫').attr({ "font-size": 20, "font-family": "sans-serif" }).attr({fill: "#fff"}),
+      label: this.paper.path('M320,414m9,30l7,-7l14,0l0,14l-14,0l-7,-7m10.5,-3l6,6m0,-6l-6,6').attr({ stroke: '#fff', 'stroke-width': 1.5, 'stroke-linecap': 'round',
+            fill: 'none' }),
       button: this.paper.rect( 320, 429, 40, 35, 12).attr({ 'fill': 'white', stroke: 'none',
         'stroke-width': 0, 'fill-opacity': 0.01 })
     }, // Backspace / clear cell
@@ -355,7 +361,6 @@ Hmi.prototype.createMarkers = function ( x, y, c, o ) {
   ];
   return markers;
 }
-
 
 Hmi.prototype.newBoard = function () {
   this.board = (new Board()).shuffleRows().turn().shuffleRows().permutate();
