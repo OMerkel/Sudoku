@@ -62,6 +62,7 @@ If not otherwise stated all graphics (independent of its format) are licensed un
   $( function() {
     $( "#tabs" ).tabs();
     $( "#level" ).selectmenu();
+    $( "input" ).checkboxradio();
     $( "#accordion" ).accordion({
       heightStyle: "content"
     });
@@ -89,7 +90,7 @@ If not otherwise stated all graphics (independent of its format) are licensed un
   <div id='tabs-options'>
     <form action='#'>
       <fieldset>
-        <label for='level'>Difficulty</label>
+        <legend>Difficulty</legend>
         <select name='level' id='level'>
           <option>Level 1</option>
           <option>Level 2 only</option>
@@ -97,6 +98,14 @@ If not otherwise stated all graphics (independent of its format) are licensed un
           <option>Level 3 only</option>
           <option selected='selected'>Up to level 3</option>
         </select>
+      </fieldset>
+      <fieldset>
+        <legend>Fill in markers for candidates</legend>
+        Remove duplicates with numbers in rows, columns and boxes?<br />
+        <label for="fillin-removed">removed</label>
+        <input type="radio" name='fillin-type' id='fillin-removed' checked>
+        <label for="fillin-all">all candidates</label>
+        <input type="radio" name='fillin-type' id='fillin-all'>
       </fieldset>
     </form>
     <div id='stat'></div>

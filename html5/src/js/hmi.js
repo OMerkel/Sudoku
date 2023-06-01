@@ -435,7 +435,7 @@ Hmi.prototype.clickKeyboardValueHandler = function ( event ) {
         console.log( i+1 );
         if ( this.editMarkersActive ) {
           if ( '' == this.cells[this.cursor.x][this.cursor.y].value.attr( 'text' )) {
-            this.showMarkers( this.cursor.x, this.cursor.y );
+            this.showAllMarkers( this.cursor.x, this.cursor.y );
             this.toggleMarker( this.cursor.x, this.cursor.y, i+1 );
           }
         } else {
@@ -481,7 +481,7 @@ Hmi.prototype.clearCell = function ( x, y ) {
   if ( -1 != this.cursor.x ) {
     this.cells[this.cursor.x][this.cursor.y].value.attr({ text: '', opacity: 1.0 });
     if (this.hasAnyMarkersSet( this.cursor.x, this.cursor.y )) {
-      this.showMarkers( this.cursor.x, this.cursor.y );
+      this.showAllMarkers( this.cursor.x, this.cursor.y );
     }
   }
 }
@@ -502,7 +502,7 @@ Hmi.prototype.hideMarkers = function ( x, y ) {
   }
 }
 
-Hmi.prototype.showMarkers = function ( x, y ) {
+Hmi.prototype.showAllMarkers = function ( x, y ) {
   var m = this.cells[x][y].markers;
   for (i=0; i<m.length; i++) {
     m[i].attr({ opacity: 1.0 });
@@ -515,13 +515,28 @@ Hmi.prototype.toggleMarker = function ( x, y, v ) {
 }
 
 Hmi.prototype.fillInMarkers = function () {
+  console.log('#fillin-all : ' + $('#fillin-all').is(':checked'));
   for( var y=0; y<9; y++) {
     for( var x=0; x<9; x++) {
       if ( (!this.hasAnyMarkersSet( x, y )) &&
         ('' == this.cells[x][y].value.attr( 'text')) ) {
-        this.showMarkers( x, y );
-        for( var i=0; i<9; i++ ) {
-          this.cells[x][y].markers[i].attr({ text: ''+(i+1) });
+        this.showAllMarkers( x, y );
+        if ($('#fillin-all').is(':checked')) {
+          for( var i=0; i<9; i++ ) {
+            this.cells[x][y].markers[i].attr({ text: ''+(i+1) });
+          }
+        } else {
+          var n = ''
+          var base = { x: Math.floor(x/3)*3, y: Math.floor(y/3)*3 };
+          for( var i=0; i<9; i++ ) {
+            var offset = { x: i%3, y: Math.floor(i/3) };
+            n = n + this.cells[x][i].value.attr( 'text' ) +
+              this.cells[i][y].value.attr( 'text' ) +
+              this.cells[base.x+offset.x][base.y+offset.y].value.attr( 'text' );
+          }
+          for( var i=0; i<9; i++ ) {
+            this.cells[x][y].markers[i].attr({ text: n.includes(''+(i+1)) ? '' : ''+(i+1) });
+          }
         }
       }
     }
