@@ -61,6 +61,7 @@ If not otherwise stated all graphics (independent of its format) are licensed un
   <script>
   $( function() {
     $( "#tabs" ).tabs();
+    $( "#level" ).selectmenu();
     $( "#accordion" ).accordion({
       heightStyle: "content"
     });
@@ -76,7 +77,7 @@ If not otherwise stated all graphics (independent of its format) are licensed un
 <div id='tabs'>
   <ul>
     <li><a href='#tabs-board'>Board</a></li>
-    <li><a href='#tabs-rules'>Rules&#8230;</a></li>
+    <li><a href='#tabs-options'>Options&#8230;</a></li>
     <li><a href='#tabs-about'>About&#8230;</a></li>
   </ul>
   <div id='tabs-board'>
@@ -85,39 +86,53 @@ If not otherwise stated all graphics (independent of its format) are licensed un
     </div><!-- /panel -->
     </center>
   </div>
-  <div id='tabs-rules'>
-    <div role='main' class='ui-content'>
-      <p><em>Sudoku</em> implements the well-known number puzzle. Objective
-        of Sudoku is to fill the empty cells with digits ranged from 1 to 9
-        in a valid pattern. Some cells are already holding fixed digits and
-        cannot be edited. A valid pattern means that</p>
-      <ul>
-      <li>each row does not contain any duplicate of digits, and</li>
-      <li>each column does not contain any duplicate of digits, and</li>
-      <li>each of the nine three-times-three subgrids does not contain any
-        duplicate of digits.</li>
-      </ul>
-      <p>On clicking a cell on the game board without predefined fixed digit
-        a cursor is set. Now you can select a digit ranged from 1 to 9 to
-        fit in the cell highlighted by the cursor position. Clearing the cell
-        is possible via the backspace button.</p>
-      <p>Smaller markers can be used to indicate remaining candidates for
-        the cell positions.</p>
-      <h3>Some hints and facts</h3>
-      <p>The Sudoku generator in use here is explicitly not only supporting
-        symmetric cell patterns that often can be found in other Sudokus.</p>
-      <p>This type of number puzzle does actually not have Asian origin.
-        Anyway it got popular under the name Sudoku being published by a
-        Japanese puzzle company in mid 1980s. Sudoku is an abbreviation
-        of the Japanese <i>Suji wa dokushin ni kagiru</i>. This could be
-        translated to <i>Digits must be singletons</i>.</p>
-      <p>Any Sudoku solution represents a form or relation towards so
-        called Latin square in a Mathematical sense.</p>
-    </div><!-- /content -->
-  </div><!-- /tab-rules -->
+  <div id='tabs-options'>
+    <form action='#'>
+      <fieldset>
+        <label for='level'>Difficulty</label>
+        <select name='level' id='level'>
+          <option>Level 1</option>
+          <option>Level 2 only</option>
+          <option>Up to level 2</option>
+          <option>Level 3 only</option>
+          <option selected='selected'>Up to level 3</option>
+        </select>
+      </fieldset>
+    </form>
+    <div id='stat'></div>
+  </div><!-- /tab-options -->
   <div id='tabs-about'>
     <div>
       <div id='accordion'>
+        <h3>Rules</h3>
+        <div>
+          <p><em>Sudoku</em> implements the well-known number puzzle. Objective
+            of Sudoku is to fill the empty cells with digits ranged from 1 to 9
+            in a valid pattern. Some cells are already holding fixed digits and
+            cannot be edited. A valid pattern means that</p>
+          <ul>
+          <li>each row does not contain any duplicate of digits, and</li>
+          <li>each column does not contain any duplicate of digits, and</li>
+          <li>each of the nine three-times-three subgrids does not contain any
+            duplicate of digits.</li>
+          </ul>
+          <p>On clicking a cell on the game board without predefined fixed digit
+            a cursor is set. Now you can select a digit ranged from 1 to 9 to
+            fit in the cell highlighted by the cursor position. Clearing the cell
+            is possible via the backspace button.</p>
+          <p>Smaller markers can be used to indicate remaining candidates for
+            the cell positions.</p>
+          <h3>Some hints and facts</h3>
+          <p>The Sudoku generator in use here is explicitly not only supporting
+            symmetric cell patterns that often can be found in other Sudokus.</p>
+          <p>This type of number puzzle does actually not have Asian origin.
+            Anyway it got popular under the name Sudoku being published by a
+            Japanese puzzle company in mid 1980s. Sudoku is an abbreviation
+            of the Japanese <i>Suji wa dokushin ni kagiru</i>. This could be
+            translated to <i>Digits must be singletons</i>.</p>
+          <p>Any Sudoku solution represents a form or relation towards so
+            called Latin square in a Mathematical sense.</p>
+        </div>
         <h3>Legal</h3>
         <div>
           <figure class='author' style='float: right;'>
@@ -171,7 +186,6 @@ If not otherwise stated all graphics (independent of its format) are licensed un
             Japanese puzzle company Nikoli in mid 1980s. Sudoku is an abbreviation
             of the Japanese <i>Suji wa dokushin ni kagiru</i>. This could be
             translated to <i>Digits must be singletons</i>.</p>
-          <div id='stat'></div>
         </div>
         <h3>Third Party Code Licenses</h4>
         <div>
