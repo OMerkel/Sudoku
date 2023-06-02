@@ -209,7 +209,7 @@ Board.prototype.permutate = function () {
 };
 
 function Hmi() {
-  this.cursor = { x: -1, y: -1 , rows: [], columns: [] };
+  this.cursor = { x: -1, y: -1 , rows: [], columns: [], blocks: [] };
   this.renderBoard();
   this.board = null;
   this.editMarkersActive = false;
@@ -260,6 +260,9 @@ Hmi.prototype.renderBoard = function () {
       stroke: 'none', 'stroke-width': 0, 'stroke-linecap': 'round',
       fill: '#448', opacity: 0 });
     this.cursor.columns[i] = this.paper.rect( i * 40, 0, 40, 360, 12 ).attr({
+      stroke: 'none', 'stroke-width': 0, 'stroke-linecap': 'round',
+      fill: '#448', opacity: 0 });
+    this.cursor.blocks[i] = this.paper.rect( (i%3) * 120, Math.floor(i/3) * 120, 120, 120, 12 ).attr({
       stroke: 'none', 'stroke-width': 0, 'stroke-linecap': 'round',
       fill: '#448', opacity: 0 });
   }
@@ -394,7 +397,7 @@ Hmi.prototype.start = function () {
     for(var b=0; b<9; b++) {
       var cell = this.cells[a][b];
       if( '+' == this.board.board[1][a][b] ) {
-        cell.value.attr({ text: this.board.board[0][a][b], fill: 'LightSlateGray' });
+        cell.value.attr({ text: this.board.board[0][a][b], fill: '#89a' });
       } else {
         cell.value.attr({ text: '', fill: 'Gainsboro' });
       }
@@ -403,6 +406,7 @@ Hmi.prototype.start = function () {
   if (this.cursor.x != -1) {
     this.cursor.columns[this.cursor.x].attr({ opacity: 0 });
     this.cursor.rows[this.cursor.y].attr({ opacity: 0 });
+    this.cursor.blocks[Math.floor(this.cursor.x/3)+3*Math.floor(this.cursor.y/3)].attr({ opacity: 0 });
   }
   this.cursor.x = -1;
   this.cursor.y = -1;
@@ -417,11 +421,14 @@ Hmi.prototype.clickSelectCellHandler = function ( event ) {
           if (this.cursor.x != -1) {
             this.cursor.columns[this.cursor.x].attr({ opacity: 0 });
             this.cursor.rows[this.cursor.y].attr({ opacity: 0 });
+            this.cursor.blocks[Math.floor(this.cursor.x/3)+3*Math.floor(this.cursor.y/3)].attr({ opacity: 0 });
           }
           this.cursor.x = x;
           this.cursor.y = y;
-          this.cursor.columns[x].attr({ opacity: 0.5 });
-          this.cursor.rows[y].attr({ opacity: 0.5 });
+          var o = 0.6;
+          this.cursor.columns[x].attr({ opacity: o });
+          this.cursor.rows[y].attr({ opacity: o });
+          this.cursor.blocks[Math.floor(x/3)+3*Math.floor(y/3)].attr({ opacity: o });
         }
       }
     }
