@@ -231,7 +231,6 @@ Hmi.prototype.renderBoard = function () {
     stroke: 'none', 'stroke-width': 0, 'stroke-linecap': 'round',
     fill: 'none'
   });
-  
   /* board */
   this.paper.rect( 0, 0, 360, 360, 12 ).attr({
     stroke: '#777', 'stroke-width': stroke_width, 'stroke-linecap': 'round',
@@ -254,7 +253,9 @@ Hmi.prototype.renderBoard = function () {
     fill: '#444'
   });
 
-  
+  this.checkmark = this.paper.path( 'M 90,200 l 60,80 l 120,-170' ).attr({ stroke: '#373',
+    'stroke-width': 6*stroke_width, 'stroke-linecap': 'round', fill: 'none', opacity: 0 });
+
   for ( var i=0; i<9; i++ ) {
     this.cursor.rows[i] = this.paper.rect( 0, i * 40, 360, 40, 12 ).attr({
       stroke: 'none', 'stroke-width': 0, 'stroke-linecap': 'round',
@@ -435,6 +436,16 @@ Hmi.prototype.clickSelectCellHandler = function ( event ) {
   }
 }
 
+Hmi.prototype.isSolved = function () {
+  var result = true;
+  for( var y=0; y<9 && result; y++) {
+    for( var x=0; x<9 && result; x++) {
+      result = result && (this.board.board[0][x][y] == this.cells[x][y].value.attr( 'text' ));
+    }
+  }
+  return result;
+}
+
 Hmi.prototype.clickKeyboardValueHandler = function ( event ) {
   for(var i=0; i<this.keyboardValue.length; ++i) {
     if (this.keyboardValue[i].button.id == event.currentTarget.raphaelid) {
@@ -454,6 +465,7 @@ Hmi.prototype.clickKeyboardValueHandler = function ( event ) {
       }
     }
   }
+  this.checkmark.attr({ opacity: this.isSolved() ? 1.0 : 0 });
 }
 
 Hmi.prototype.clickKeyboardActionHandler = function ( event ) {
@@ -482,6 +494,7 @@ Hmi.prototype.clickKeyboardActionHandler = function ( event ) {
       break;
     default: console.log('No action');
   }
+  this.checkmark.attr({ opacity: this.isSolved() ? 1.0 : 0 });
 }
 
 Hmi.prototype.clearCell = function ( x, y ) {
