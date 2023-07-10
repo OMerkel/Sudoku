@@ -1,7 +1,7 @@
 {
   "name": "io.github.omerkel.sudoku",
   "displayName": "Sudoku",
-  "version": "0.1",
+  "version": "0.2",
   "description": "Sudoku number puzzle game",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
